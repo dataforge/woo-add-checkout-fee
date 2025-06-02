@@ -1,7 +1,4 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) {
-    exit;
-}
 /*
 Plugin Name: Woo Add Checkout Fee
 Plugin URI: https://github.com/dataforge/woo-add-checkout-fee
@@ -11,6 +8,9 @@ Author: Dataforge
 GitHub Plugin URI: https://github.com/dataforge/woo-add-checkout-fee
 License: GPL2
 */
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
 
 add_action( 'admin_menu', 'woo_add_checkout_fee_admin_menu' );
 function woo_add_checkout_fee_admin_menu() {
