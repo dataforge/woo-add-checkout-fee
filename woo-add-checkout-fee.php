@@ -2,8 +2,8 @@
 /*
 Plugin Name: Woo Add Checkout Fee
 Plugin URI: https://github.com/dataforge/woo-add-checkout-fee
-Description: Adds an electronic payment fee to WooCommerce checkout. This is the official woo-add-checkout-fee plugin.
-Version: 1.01
+Description: Adds an electronic payment fee to WooCommerce checkout
+Version: 1.10
 Author: Dataforge
 GitHub Plugin URI: https://github.com/dataforge/woo-add-checkout-fee
 License: GPL2
