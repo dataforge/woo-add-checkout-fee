@@ -67,7 +67,7 @@ function woo_add_checkout_fee_settings_init() {
 
     add_settings_field(
         'woo_add_checkout_fee_fixed',
-        'Fixed Fee',
+        'Fixed Fee (cents)',
         'woo_add_checkout_fee_fixed_field_render',
         'woo-add-checkout-fee',
         'woo_add_checkout_fee_section'
@@ -75,7 +75,7 @@ function woo_add_checkout_fee_settings_init() {
 }
 
 function woo_add_checkout_fee_enabled_field_render() {
-    $value = get_option( 'woo_add_checkout_fee_enabled', '1' );
+    $value = get_option( 'woo_add_checkout_fee_enabled', '0' );
     ?>
     <input type="checkbox" name="woo_add_checkout_fee_enabled" value="1" <?php checked( $value, '1' ); ?> /> Enable the checkout fee
     <?php
@@ -89,9 +89,9 @@ function woo_add_checkout_fee_percentage_field_render() {
 }
 
 function woo_add_checkout_fee_fixed_field_render() {
-    $value = get_option( 'woo_add_checkout_fee_fixed', '0.3' );
+    $value = get_option( 'woo_add_checkout_fee_fixed', '30' );
     ?>
-    <input type="number" step="0.01" min="0" name="woo_add_checkout_fee_fixed" value="<?php echo esc_attr( $value ); ?>" />
+    <input type="number" step="1" min="0" name="woo_add_checkout_fee_fixed" value="<?php echo esc_attr( $value ); ?>" /> cents
     <?php
 }
 
@@ -102,13 +102,14 @@ function woo_add_checkout_fee_surcharge() {
     if ( is_admin() && ! defined( 'DOING_AJAX' ) )
         return;
 
-    $enabled = get_option( 'woo_add_checkout_fee_enabled', '1' );
+    $enabled = get_option( 'woo_add_checkout_fee_enabled', '0' );
     if ( $enabled !== '1' ) {
         return;
     }
 
     $percentage = floatval( get_option( 'woo_add_checkout_fee_percentage', '2.9' ) ) / 100;
-    $fixed_fee = floatval( get_option( 'woo_add_checkout_fee_fixed', '0.3' ) );
+    $fixed_fee_cents = floatval( get_option( 'woo_add_checkout_fee_fixed', '30' ) );
+    $fixed_fee = $fixed_fee_cents / 100;
 
     $surcharge = ( $woocommerce->cart->cart_contents_total + $woocommerce->cart->shipping_total ) * $percentage + $fixed_fee;
     $woocommerce->cart->add_fee( 'Electronic Payment Fee', $surcharge, true, '' );
