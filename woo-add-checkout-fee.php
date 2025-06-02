@@ -38,6 +38,7 @@ function woo_add_checkout_fee_settings_page() {
 
 add_action( 'admin_init', 'woo_add_checkout_fee_settings_init' );
 function woo_add_checkout_fee_settings_init() {
+    register_setting( 'woo_add_checkout_fee_settings_group', 'woo_add_checkout_fee_enabled' );
     register_setting( 'woo_add_checkout_fee_settings_group', 'woo_add_checkout_fee_percentage' );
     register_setting( 'woo_add_checkout_fee_settings_group', 'woo_add_checkout_fee_fixed' );
 
@@ -46,6 +47,14 @@ function woo_add_checkout_fee_settings_init() {
         'Fee Settings',
         null,
         'woo-add-checkout-fee'
+    );
+
+    add_settings_field(
+        'woo_add_checkout_fee_enabled',
+        'Enable Fee',
+        'woo_add_checkout_fee_enabled_field_render',
+        'woo-add-checkout-fee',
+        'woo_add_checkout_fee_section'
     );
 
     add_settings_field(
@@ -63,6 +72,13 @@ function woo_add_checkout_fee_settings_init() {
         'woo-add-checkout-fee',
         'woo_add_checkout_fee_section'
     );
+}
+
+function woo_add_checkout_fee_enabled_field_render() {
+    $value = get_option( 'woo_add_checkout_fee_enabled', '1' );
+    ?>
+    <input type="checkbox" name="woo_add_checkout_fee_enabled" value="1" <?php checked( $value, '1' ); ?> /> Enable the checkout fee
+    <?php
 }
 
 function woo_add_checkout_fee_percentage_field_render() {
@@ -85,6 +101,11 @@ function woo_add_checkout_fee_surcharge() {
 
     if ( is_admin() && ! defined( 'DOING_AJAX' ) )
         return;
+
+    $enabled = get_option( 'woo_add_checkout_fee_enabled', '1' );
+    if ( $enabled !== '1' ) {
+        return;
+    }
 
     $percentage = floatval( get_option( 'woo_add_checkout_fee_percentage', '2.9' ) ) / 100;
     $fixed_fee = floatval( get_option( 'woo_add_checkout_fee_fixed', '0.3' ) );
