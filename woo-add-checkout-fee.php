@@ -1,4 +1,7 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
 /*
 Plugin Name: Woo Add Checkout Fee
 Plugin URI: https://github.com/dataforge/woo-add-checkout-fee
@@ -24,7 +27,7 @@ function woo_add_checkout_fee_admin_menu() {
 function woo_add_checkout_fee_settings_page() {
     ?>
     <div class="wrap">
-        <h1>Woo Add Checkout Fee Settings</h1>
+        <h1>Woo Add Checkout Fee</h1>
         <form method="post" action="options.php">
             <?php
             settings_fields( 'woo_add_checkout_fee_settings_group' );
