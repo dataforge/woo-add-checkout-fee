@@ -1,21 +1,93 @@
 <?php
 /*
 Plugin Name: woo-add-checkout-fee
+Plugin URI: https://github.com/dataforge/woo-add-checkout-fee
 Description: Adds an electronic payment fee to WooCommerce checkout. This is the official woo-add-checkout-fee plugin.
 Version: 1.0
-Author: Your Name
+Author: Dataforge
+GitHub Plugin URI: https://github.com/dataforge/woo-add-checkout-fee
 License: GPL2
 */
 
-add_action( 'woocommerce_cart_calculate_fees', 'woocommerce_custom_surcharge' );
-function woocommerce_custom_surcharge() {
+add_action( 'admin_menu', 'woo_add_checkout_fee_admin_menu' );
+function woo_add_checkout_fee_admin_menu() {
+    add_submenu_page(
+        'woocommerce',
+        'Woo Add Checkout Fee',
+        'Woo Add Checkout Fee',
+        'manage_woocommerce',
+        'woo-add-checkout-fee',
+        'woo_add_checkout_fee_settings_page'
+    );
+}
+
+function woo_add_checkout_fee_settings_page() {
+    ?>
+    <div class="wrap">
+        <h1>Woo Add Checkout Fee Settings</h1>
+        <form method="post" action="options.php">
+            <?php
+            settings_fields( 'woo_add_checkout_fee_settings_group' );
+            do_settings_sections( 'woo-add-checkout-fee' );
+            submit_button();
+            ?>
+        </form>
+    </div>
+    <?php
+}
+
+add_action( 'admin_init', 'woo_add_checkout_fee_settings_init' );
+function woo_add_checkout_fee_settings_init() {
+    register_setting( 'woo_add_checkout_fee_settings_group', 'woo_add_checkout_fee_percentage' );
+    register_setting( 'woo_add_checkout_fee_settings_group', 'woo_add_checkout_fee_fixed' );
+
+    add_settings_section(
+        'woo_add_checkout_fee_section',
+        'Fee Settings',
+        null,
+        'woo-add-checkout-fee'
+    );
+
+    add_settings_field(
+        'woo_add_checkout_fee_percentage',
+        'Percentage Fee (%)',
+        'woo_add_checkout_fee_percentage_field_render',
+        'woo-add-checkout-fee',
+        'woo_add_checkout_fee_section'
+    );
+
+    add_settings_field(
+        'woo_add_checkout_fee_fixed',
+        'Fixed Fee',
+        'woo_add_checkout_fee_fixed_field_render',
+        'woo-add-checkout-fee',
+        'woo_add_checkout_fee_section'
+    );
+}
+
+function woo_add_checkout_fee_percentage_field_render() {
+    $value = get_option( 'woo_add_checkout_fee_percentage', '2.9' );
+    ?>
+    <input type="number" step="0.01" min="0" name="woo_add_checkout_fee_percentage" value="<?php echo esc_attr( $value ); ?>" /> %
+    <?php
+}
+
+function woo_add_checkout_fee_fixed_field_render() {
+    $value = get_option( 'woo_add_checkout_fee_fixed', '0.3' );
+    ?>
+    <input type="number" step="0.01" min="0" name="woo_add_checkout_fee_fixed" value="<?php echo esc_attr( $value ); ?>" />
+    <?php
+}
+
+add_action( 'woocommerce_cart_calculate_fees', 'woo_add_checkout_fee_surcharge' );
+function woo_add_checkout_fee_surcharge() {
     global $woocommerce;
 
     if ( is_admin() && ! defined( 'DOING_AJAX' ) )
         return;
 
-    $percentage = 0.029;
-    $fixed_fee = 0.3;
+    $percentage = floatval( get_option( 'woo_add_checkout_fee_percentage', '2.9' ) ) / 100;
+    $fixed_fee = floatval( get_option( 'woo_add_checkout_fee_fixed', '0.3' ) );
 
     $surcharge = ( $woocommerce->cart->cart_contents_total + $woocommerce->cart->shipping_total ) * $percentage + $fixed_fee;
     $woocommerce->cart->add_fee( 'Electronic Payment Fee', $surcharge, true, '' );
