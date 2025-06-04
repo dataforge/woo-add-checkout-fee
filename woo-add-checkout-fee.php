@@ -81,10 +81,26 @@ function woo_add_checkout_fee_settings_page() {
 
 add_action( 'admin_init', 'woo_add_checkout_fee_settings_init' );
 function woo_add_checkout_fee_settings_init() {
-    register_setting( 'woo_add_checkout_fee_settings_group', 'woo_add_checkout_fee_enabled' );
-    register_setting( 'woo_add_checkout_fee_settings_group', 'woo_add_checkout_fee_percentage' );
-    register_setting( 'woo_add_checkout_fee_settings_group', 'woo_add_checkout_fee_fixed' );
-    register_setting( 'woo_add_checkout_fee_settings_group', 'woo_add_checkout_fee_name' );
+    register_setting( 'woo_add_checkout_fee_settings_group', 'woo_add_checkout_fee_enabled', array(
+        'type' => 'string',
+        'sanitize_callback' => 'woo_add_checkout_fee_sanitize_enabled',
+        'default' => '0',
+    ) );
+    register_setting( 'woo_add_checkout_fee_settings_group', 'woo_add_checkout_fee_percentage', array(
+        'type' => 'string',
+        'sanitize_callback' => 'woo_add_checkout_fee_sanitize_percentage',
+        'default' => '2.9',
+    ) );
+    register_setting( 'woo_add_checkout_fee_settings_group', 'woo_add_checkout_fee_fixed', array(
+        'type' => 'string',
+        'sanitize_callback' => 'woo_add_checkout_fee_sanitize_fixed',
+        'default' => '30',
+    ) );
+    register_setting( 'woo_add_checkout_fee_settings_group', 'woo_add_checkout_fee_name', array(
+        'type' => 'string',
+        'sanitize_callback' => 'woo_add_checkout_fee_sanitize_name',
+        'default' => 'Electronic Payment Fee',
+    ) );
 
     add_settings_section(
         'woo_add_checkout_fee_section',
@@ -153,6 +169,22 @@ function woo_add_checkout_fee_name_field_render() {
     <input type="text" name="woo_add_checkout_fee_name" value="<?php echo esc_attr( $value ); ?>" style="min-width:300px;" />
     <p class="description">This will be the name shown for the fee on checkout. Default: "Electronic Payment Fee"</p>
     <?php
+}
+
+// Sanitization callbacks
+function woo_add_checkout_fee_sanitize_enabled( $value ) {
+    return $value === '1' ? '1' : '0';
+}
+function woo_add_checkout_fee_sanitize_percentage( $value ) {
+    $float = floatval( $value );
+    return $float >= 0 ? (string) $float : '0';
+}
+function woo_add_checkout_fee_sanitize_fixed( $value ) {
+    $int = intval( $value );
+    return $int >= 0 ? (string) $int : '0';
+}
+function woo_add_checkout_fee_sanitize_name( $value ) {
+    return sanitize_text_field( $value );
 }
 
 add_action( 'woocommerce_cart_calculate_fees', 'woo_add_checkout_fee_surcharge' );
