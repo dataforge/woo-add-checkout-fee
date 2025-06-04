@@ -29,6 +29,9 @@ function woo_add_checkout_fee_settings_page() {
 
     // Handle "Check for Plugin Updates" button
     if (isset($_POST['woo_acf_check_update']) && check_admin_referer('woo_acf_settings_nonce', 'woo_acf_settings_nonce')) {
+        if (!current_user_can('manage_woocommerce')) {
+            wp_die(__('You do not have permission to perform this action.', 'woo-add-checkout-fee'));
+        }
         // Simulate the cron event for plugin update check
         do_action('wp_update_plugins');
         if (function_exists('wp_clean_plugins_cache')) {
@@ -98,7 +101,7 @@ function woo_add_checkout_fee_settings_page() {
         </script>
         <?php
         if ( ! empty( $update_msg ) ) {
-            echo $update_msg;
+            echo wp_kses_post($update_msg);
         }
         ?>
         <form method="post" action="">
