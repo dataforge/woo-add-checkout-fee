@@ -58,13 +58,44 @@ function woo_add_checkout_fee_settings_page() {
             echo '<div class="notice notice-success is-dismissible"><p>Settings Saved</p></div>';
         }
         ?>
-        <form method="post" action="options.php">
+        <form method="post" action="options.php" id="woo-add-checkout-fee-settings-form">
             <?php
             settings_fields( 'woo_add_checkout_fee_settings_group' );
             do_settings_sections( 'woo-add-checkout-fee' );
+            ?>
+            <div id="woo-acf-fee-preview" style="margin: 20px 0; padding: 10px; background: #f8f8f8; border: 1px solid #ddd;">
+                <strong>Example:</strong> Order total is $100.<br>
+                The calculation would be: percentage fee <span id="woo-acf-perc-fee-preview">$0.00</span> + fixed fee <span id="woo-acf-fixed-fee-preview">$0.00</span>.<br>
+                The total fee would be <span id="woo-acf-total-fee-preview">$0.00</span>.
+            </div>
+            <?php
             submit_button();
             ?>
         </form>
+        <script>
+        (function() {
+            function updatePreview() {
+                var percField = document.querySelector('input[name="woo_add_checkout_fee_percentage"]');
+                var fixedField = document.querySelector('input[name="woo_add_checkout_fee_fixed"]');
+                var perc = parseFloat(percField ? percField.value : "2.9") || 0;
+                var fixedCents = parseInt(fixedField ? fixedField.value : "30", 10) || 0;
+                var orderTotal = 100;
+                var percFee = orderTotal * (perc / 100);
+                var fixedFee = fixedCents / 100;
+                var totalFee = percFee + fixedFee;
+                document.getElementById('woo-acf-perc-fee-preview').textContent = "$" + percFee.toFixed(2);
+                document.getElementById('woo-acf-fixed-fee-preview').textContent = "$" + fixedFee.toFixed(2);
+                document.getElementById('woo-acf-total-fee-preview').textContent = "$" + totalFee.toFixed(2);
+            }
+            document.addEventListener('DOMContentLoaded', function() {
+                updatePreview();
+                var percField = document.querySelector('input[name="woo_add_checkout_fee_percentage"]');
+                var fixedField = document.querySelector('input[name="woo_add_checkout_fee_fixed"]');
+                if (percField) percField.addEventListener('input', updatePreview);
+                if (fixedField) fixedField.addEventListener('input', updatePreview);
+            });
+        })();
+        </script>
         <?php
         if ( ! empty( $update_msg ) ) {
             echo $update_msg;
