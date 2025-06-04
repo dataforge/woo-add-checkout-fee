@@ -89,17 +89,17 @@ function woo_add_checkout_fee_settings_init() {
     );
 
     add_settings_field(
-        'woo_add_checkout_fee_name',
-        'Name of the Checkout Fee',
-        'woo_add_checkout_fee_name_field_render',
+        'woo_add_checkout_fee_enabled',
+        'Enable Fee',
+        'woo_add_checkout_fee_enabled_field_render',
         'woo-add-checkout-fee',
         'woo_add_checkout_fee_section'
     );
 
     add_settings_field(
-        'woo_add_checkout_fee_enabled',
-        'Enable Fee',
-        'woo_add_checkout_fee_enabled_field_render',
+        'woo_add_checkout_fee_name',
+        'Name of the Checkout Fee',
+        'woo_add_checkout_fee_name_field_render',
         'woo-add-checkout-fee',
         'woo_add_checkout_fee_section'
     );
