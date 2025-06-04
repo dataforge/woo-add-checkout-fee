@@ -79,12 +79,21 @@ function woo_add_checkout_fee_settings_init() {
     register_setting( 'woo_add_checkout_fee_settings_group', 'woo_add_checkout_fee_enabled' );
     register_setting( 'woo_add_checkout_fee_settings_group', 'woo_add_checkout_fee_percentage' );
     register_setting( 'woo_add_checkout_fee_settings_group', 'woo_add_checkout_fee_fixed' );
+    register_setting( 'woo_add_checkout_fee_settings_group', 'woo_add_checkout_fee_name' );
 
     add_settings_section(
         'woo_add_checkout_fee_section',
         'Fee Settings',
         null,
         'woo-add-checkout-fee'
+    );
+
+    add_settings_field(
+        'woo_add_checkout_fee_name',
+        'Name of the Checkout Fee',
+        'woo_add_checkout_fee_name_field_render',
+        'woo-add-checkout-fee',
+        'woo_add_checkout_fee_section'
     );
 
     add_settings_field(
@@ -133,6 +142,14 @@ function woo_add_checkout_fee_fixed_field_render() {
     <?php
 }
 
+function woo_add_checkout_fee_name_field_render() {
+    $value = get_option( 'woo_add_checkout_fee_name', 'Electronic Payment Fee' );
+    ?>
+    <input type="text" name="woo_add_checkout_fee_name" value="<?php echo esc_attr( $value ); ?>" style="min-width:300px;" />
+    <p class="description">This will be the name shown for the fee on checkout. Default: "Electronic Payment Fee"</p>
+    <?php
+}
+
 add_action( 'woocommerce_cart_calculate_fees', 'woo_add_checkout_fee_surcharge' );
 function woo_add_checkout_fee_surcharge() {
     global $woocommerce;
@@ -150,5 +167,26 @@ function woo_add_checkout_fee_surcharge() {
     $fixed_fee = $fixed_fee_cents / 100;
 
     $surcharge = ( $woocommerce->cart->cart_contents_total + $woocommerce->cart->shipping_total ) * $percentage + $fixed_fee;
-    $woocommerce->cart->add_fee( 'Electronic Payment Fee', $surcharge, true, '' );
+    $fee_name = get_option( 'woo_add_checkout_fee_name', 'Electronic Payment Fee' );
+    if ( empty( $fee_name ) ) {
+        $fee_name = 'Electronic Payment Fee';
+    }
+    $woocommerce->cart->add_fee( $fee_name, $surcharge, true, '' );
+}
+
+// Set default options in database on plugin activation for new installs
+register_activation_hook(__FILE__, 'woo_add_checkout_fee_set_default_options');
+function woo_add_checkout_fee_set_default_options() {
+    if ( get_option('woo_add_checkout_fee_name', false ) === false ) {
+        add_option('woo_add_checkout_fee_name', 'Electronic Payment Fee');
+    }
+    if ( get_option('woo_add_checkout_fee_percentage', false ) === false ) {
+        add_option('woo_add_checkout_fee_percentage', '2.9');
+    }
+    if ( get_option('woo_add_checkout_fee_fixed', false ) === false ) {
+        add_option('woo_add_checkout_fee_fixed', '30');
+    }
+    if ( get_option('woo_add_checkout_fee_enabled', false ) === false ) {
+        add_option('woo_add_checkout_fee_enabled', '0');
+    }
 }
