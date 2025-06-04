@@ -53,6 +53,11 @@ function woo_add_checkout_fee_settings_page() {
     ?>
     <div class="wrap">
         <h1>Woo Add Checkout Fee</h1>
+        <?php
+        if ( isset($_GET['settings-updated']) && $_GET['settings-updated'] ) {
+            echo '<div class="notice notice-success is-dismissible"><p>Settings Saved</p></div>';
+        }
+        ?>
         <form method="post" action="options.php">
             <?php
             settings_fields( 'woo_add_checkout_fee_settings_group' );
